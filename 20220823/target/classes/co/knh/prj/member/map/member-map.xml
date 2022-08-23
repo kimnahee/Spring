@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.knh.prj.member.map.MemberMapper">
+	<!-- InterFace 이름으로 변경 -->
+	<select id="memberSelectList"
+		resultType="co.knh.prj.member.vo.MemberVO">
+		SELECT * FROM MEMBER
+	</select>
+
+	<select id="memberSelect"
+		parameterType="co.knh.prj.member.vo.MemberVO"
+		resultType="co.knh.prj.member.vo.MemberVO">
+		SELECT * FROM MEMBER WHERE MEMBER_ID = #{MEMBER_ID}
+	</select>
+
+	<insert id="memberInsert" parameterType="co.knh.prj.member.vo.MemberVO">
+		INSERT INTO MEMBER 
+		VALUES(#{MEMBER_ID}, #{MEMBER_PASSWORD}, #{MEMBER_NAME}, 'USER')
+	</insert>
+
+	<update id="memberUpdate" parameterType="co.knh.prj.member.vo.MemberVO">
+		UPDATE MEMBER
+		SET MEMBER_PASSWORD = #{MEMBER_PASSWORD}, 
+			MEMBER_NAME = #{MEMBER_NAME}, 
+			MEMBER_AUTHOR = #{MEMBER_AUTHOR}
+		WHERE MEMBER_ID = #{MEMBER_ID}
+	</update>
+
+	<delete id="memberDelete">
+		DELETE FROM MEMBER
+		WHERE MEMBER_ID = #{MEMBER_ID}
+	</delete>
+</mapper>
