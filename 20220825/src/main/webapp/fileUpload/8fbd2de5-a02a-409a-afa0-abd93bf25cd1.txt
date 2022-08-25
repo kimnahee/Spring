@@ -1,0 +1,248 @@
+set serveroutput on;
+
+create or replace package dept_pkg is
+    procedure add_department
+        (p_deptno departments.department_id%type,
+         p_name   departments.department_name%type := 'unknown',
+         p_loc    departments.location_id%type := 1700);
+         
+    procedure add_department
+        (p_name   departments.department_name%type := 'unknown',
+         p_loc    departments.location_id%type := 1700);
+end dept_pkg;
+/
+create or replace package body dept_pkg is
+    procedure add_department
+        (p_deptno departments.department_id%type,
+         p_name   departments.department_name%type := 'unknown',
+         p_loc    departments.location_id%type := 1700)
+    is
+    begin
+        insert into departments (department_id, department_name, location_id)
+        values (p_deptno, p_name, p_loc);
+    end add_department;
+    
+     procedure add_department
+        (p_name   departments.department_name%type := 'unknown',
+         p_loc    departments.location_id%type := 1700)
+    is
+    begin
+        insert into departments (department_id, department_name, location_id)
+        values (departments_seq.nextval, p_name, p_loc);
+    end add_department;
+end dept_pkg;
+/
+execute dept_pkg.add_department(980, 'Education', 2500);
+execute dept_pkg.add_department('Training', 2500);
+
+select * 
+from departments;
+
+create or replace package taxes_pack
+is
+    function tax
+        (p_value in number)
+         return number;
+end taxes_pack;
+/
+create or replace package body taxes_pack
+is
+    function tax
+        (p_value in number)
+         return number
+    is
+        v_rate number := 0.08;
+    begin
+        return (p_value * v_rate);
+    end tax;
+end taxes_pack;
+/
+select taxes_pack.tax(salary) as tax, salary, last_name
+from   employees;
+
+create or replace package emp_pkg is
+    type emp_table_type is table of employees%rowtype
+        index by binary_integer;
+    procedure get_employees
+             (p_emps out emp_table_type);
+end emp_pkg;
+/
+create or replace package body emp_pkg is
+     procedure get_employees
+             (p_emps out emp_table_type)
+     is
+        v_i binary_integer := 0;
+     begin
+        for emp_record in (select * from employees)
+        loop
+            p_emps(v_i) := emp_record;
+            v_i := v_i + 1;
+        end loop;
+    end get_employees;
+end emp_pkg;
+/
+declare
+    v_employees emp_pkg.emp_table_type;
+begin
+    emp_pkg.get_employees(v_employees);
+    dbms_output.put_line('Emp 5 : ' || v_employees(4).last_name || ', Emp 7 : ' || v_employees(6).first_name);
+end;
+/
+--package 명세
+create or replace package yd_pkg 
+is
+    function y_age
+        (p_number varchar2)
+         return varchar2;
+    function y_sex
+        (p_number varchar2)
+         return varchar2;
+end yd_pkg;
+/
+--package body
+create or replace package body yd_pkg 
+is
+    function y_age
+        (p_number varchar2)
+         return varchar2
+    is
+        v_year varchar2(15);
+        v_number varchar2(2);
+        v_age varchar2(10);
+    begin
+        -- 1,2 | 00인 경우 형식 모델 사용해야함
+        v_year := substr(p_number, 1, 2);
+        v_number := substr(p_number, 7, 1); 
+        if v_number = 1 or v_number = 2 then
+            v_year := v_year + 1900;
+        else
+            v_year := v_year + 2000;
+        end if;
+        v_age := to_char(sysdate, 'yyyy') - v_year + 1;
+        return v_age;
+    end y_age;
+    
+    function y_sex
+        (p_number varchar2)
+         return varchar2
+    is
+        v_number varchar2(2);
+    begin
+        -- 1, 3 = 남성, 2,4 = 여성
+        v_number := substr(p_number, 7, 1);
+        if v_number = 1 or v_number = 3 then
+            return '남성';
+        elsif v_number = 2 or v_number = 4 then
+            return '여성';
+        else
+            return 'error';
+        end if;
+    end y_sex;
+end yd_pkg;
+/
+--function
+create or replace function y_age
+    (p_number varchar2)
+     return varchar2
+is
+    v_year varchar2(15);
+    v_number varchar2(2);
+    v_age varchar2(10);
+begin
+    -- 1,2 | 00인 경우 형식 모델 사용해야함
+    v_year := substr(p_number, 1, 2);
+    v_number := substr(p_number, 7, 1); 
+    if v_number = 1 or v_number = 2 then
+        v_year := v_year + 1900;
+    else
+        v_year := v_year + 2000;
+    end if;
+    v_age := to_char(sysdate, 'yyyy') - v_year + 1;
+    return v_age;
+end y_age;
+/
+--function
+create or replace function y_sex
+    (p_number varchar2)
+     return varchar2
+is
+    v_number varchar2(2);
+begin
+    -- 1, 3 = 남성, 2,4 = 여성
+    v_number := substr(p_number, 7, 1);
+    if v_number = 1 or v_number = 3 then
+        return '남성';
+    elsif v_number = 2 or v_number = 4 then
+        return '여성';
+    else
+        return 'error';
+    end if;
+end y_sex;
+/
+execute dbms_output.put_line(yd_pkg.y_sex('8912011676666'));
+execute dbms_output.put_line(yd_pkg.y_age('8912011676666'));
+execute dbms_output.put_line(yd_pkg.y_sex('0012014676666'));
+execute dbms_output.put_line(yd_pkg.y_age('0012014676666'));
+
+create or replace trigger secure_emp
+before insert on departments
+    begin
+        if(to_char(sysdate, 'DY') in ('토', '일')) or
+          (to_char(sysdate, 'HH24:MI')
+           not between '08:00' and '18:00') then
+           raise_application_error(-20500, '입력 안됨');
+        end if;
+    end;
+/
+insert into departments(department_id,
+                        department_name)
+values (444, 'YD');
+
+create or replace trigger secure_emp
+before insert or update or delete on departments
+    begin
+        if (to_char(sysdate, 'DY') in ('수', '일')) or 
+           (to_char(sysdate, 'HH24') not between '08' and '18') then
+            if deleting then 
+                raise_application_error(-20502, '삭제불가');
+            elsif inserting then 
+                raise_application_error(-20500, '삽입불가');
+            elsif updating ('department_name') then
+                raise_application_error(-20503, '수정불가');
+            else raise_application_error(-20504, '작업불가');
+            end if;
+        end if;
+    end;
+/
+insert into departments(department_id,
+                        department_name)
+values (555, 'YD');
+
+update departments
+set department_name = 'Yedam'
+where department_id = '444';
+
+update departments
+set location_id = '1700'
+where department_id = '444';
+
+delete departments
+where department_id = '444';
+
+select *
+from employees
+where last_name = 'Russell';
+
+create or replace trigger restrict_salary
+before insert or update of salary on employees
+--for each row
+begin
+    if (job_id in ('AD_PRES', 'AD_VP'))
+       and salary > 15000 then
+        raise_application_error(-20202, 'Employee cannot earn more than $15,000.');
+    end if;
+end;
+/
+update employees
+set salary = 15550
+where employee_id = 102;

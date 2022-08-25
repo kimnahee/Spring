@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="co.knh.prj.notice.map.NoticeMapper">
+
+	<select id="noticeSelect" resultType="co.knh.prj.notice.service.NoticeVO">
+<!-- 	select notice_id as noticeId,
+			   notice_writer as noticeWriter,
+			   notice_title as noticeTitle,
+			   notice_subject as noticeSubject,
+			   notice_date as noticeDate,
+			   notice_hit as noticeHit,
+			   notice_attech as noticeAttech
+		from notice
+		where notice_id = #{noticeId} -->	
+		select notice_id,
+			   notice_writer,
+			   notice_title,
+			   notice_subject,
+			   notice_date,
+			   notice_hit,
+			   notice_attech
+		from notice
+		where notice_id = #{noticeId}
+			   
+	</select>
+	
+	<insert id="noticeInsert" parameterType="co.knh.prj.notice.service.NoticeVO">
+		<selectKey keyProperty="noticeId" order="BEFORE" resultType="int">
+		select
+			case when max(notice_id) is null then 1 
+			else max(notice_id) + 1 end as id
+		from notice
+		</selectKey>
+		<!-- selectkey의 keyproperty를 id값에 넣어줌 -->
+		insert into notice
+		values(#{noticeId}, #{noticeWriter}, #{noticeTitle}, #{noticeSubject}, 
+			   #{noticeDate}, 0, #{noticeAttech}, #{noticeAttechDir})
+	</insert>
+	
+	<update id="noticeUpdate">
+		update notice
+		<set>
+			<if test="noticeWriter != null">notice_writer = #{noticeWriter},</if>
+			<if test="noticeTitle != null">notice_title = #{noticeTitle},</if>
+			<if test="noticeSubject != null">notice_subject = #{noticeSubject},</if>
+			<if test="noticeDate != null">notice_date = #{noticeDate},</if>
+			<if test="noticeAttech != null">notice_attech = #{noticeAttech},</if>
+			<if test="noticeAttechDir != null">notice_attech_dir = #{noticeAttechDir}</if>
+		</set>
+		where notice_id = #{noticeId}
+	</update>
+	
+	<delete id="noticeDelete">
+	
+	</delete>
+	
+	<select id="noticeSearch" resultType="co.knh.prj.notice.service.NoticeVO">
+		select * from notice
+		where
+		<choose>
+			<when test="key == 1"> notice_title like '%'|| #{val} ||'%'</when>
+			<when test="key == 2"> notice_subject like '%'|| #{val} ||'%'</when>
+			<when test="key == 3"> notice_writer = #{val} </when>
+		</choose>
+	</select>
+</mapper>
