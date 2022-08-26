@@ -28,10 +28,10 @@ public class NoticeController {
 	@Autowired
 	private ServletContext servletContext;
 	
-	@RequestMapping("/noticeSelect.do")
+	@PostMapping("/noticeSelect.do")
 	public String noticeSelect(NoticeVO vo, Model model) {
-		//vo.setNoticeId(44); //강제로 하나의 레코드 선택
 		model.addAttribute("n", dao.noticeSelect(vo));
+		dao.noticeHitUpdate(vo);
 		return "notice/noticeSelect";
 	}
 	

@@ -8,5 +8,6 @@
 </head>
 <body>
 	<h4>홈</h4>
+	<a href="noticeSelectList.do">게시글 목록</a>
 </body>
 </html>

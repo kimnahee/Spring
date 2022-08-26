@@ -46,4 +46,9 @@ public class NoticeServiceImpl implements NoticeService{
 		return map.noticeSearch(Key, val);
 	}
 
+	@Override
+	public int noticeHitUpdate(NoticeVO vo) {
+		return map.noticeHitUpdate(vo);
+	}
+
 }

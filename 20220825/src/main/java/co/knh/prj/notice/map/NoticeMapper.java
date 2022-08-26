@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import co.knh.prj.notice.service.NoticeVO;
 
@@ -16,6 +17,7 @@ public interface NoticeMapper {
 	int noticeInsert(NoticeVO vo);
 	int noticeUpdate(NoticeVO vo);
 	int noticeDelete(NoticeVO vo);
+	int noticeHitUpdate(NoticeVO vo);
 	
 	List<NoticeVO> noticeSearch(@Param("key") String Key, @Param("val") String val); //전달하고자 하는 값이 2개 이상일 때 @Param 
 }

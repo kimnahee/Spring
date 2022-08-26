@@ -10,7 +10,8 @@ public interface NoticeService {
 	int noticeInsert(NoticeVO vo);
 	int noticeUpdate(NoticeVO vo);
 	int noticeDelete(NoticeVO vo);
-	
+	int noticeHitUpdate(NoticeVO vo); //조회수 증가
+
 	List<NoticeVO> noticeSearch(String Key, String val);
 	
 }

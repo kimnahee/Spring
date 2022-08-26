@@ -63,4 +63,8 @@
 			<when test="key == 3"> notice_writer = #{val} </when>
 		</choose>
 	</select>
+	
+	<update id="noticeHitUpdate">
+		update notice set notice_hit = notice_hit + 1 where notice_id = #{noticeId}
+	</update>
 </mapper>
